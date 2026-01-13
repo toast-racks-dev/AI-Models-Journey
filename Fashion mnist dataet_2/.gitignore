@@ -1,0 +1,8 @@
+# Data files
+*.csv
+*.ubyte
+
+# Cache
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
