@@ -136,7 +136,7 @@ def main():
     print(f"Training completed in {total_time:.1f} seconds")
     print(f"Final Test Accuracy: {test_accuracy:.2f}%")
     
-    # Save the trained model (state_dict only for portability)
+    # Save the trained model
     model_path = "mnist_cnn.pth"
     torch.save(model.state_dict(), model_path)
     print(f"Model saved to '{model_path}'")

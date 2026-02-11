@@ -7,16 +7,6 @@ from sklearn.metrics import precision_score, recall_score, f1_score, confusion_m
 from model import MNISTConvNet
 
 def load_model(model_path="mnist_cnn.pth"):
-    """
-    Load the trained model from disk.
-    
-    Args:
-        model_path: Path to the saved model state_dict
-        
-    Returns:
-        model: The loaded model in evaluation mode
-    """
-    # Step 1: Instantiate an empty model with the same architecture
     model = MNISTConvNet()
     
     # Step 2: Load the saved parameter values
@@ -36,12 +26,6 @@ def load_model(model_path="mnist_cnn.pth"):
 
 
 def get_test_loader(batch_size=1000):
-    """
-    Create a test data loader for evaluation.
-    
-    Returns:
-        test_loader: DataLoader for the MNIST test dataset
-    """
     # Calculate statistics from training set to match training
     temp_dataset = datasets.MNIST('./data', train=True, download=True, transform=transforms.ToTensor())
     temp_loader = torch.utils.data.DataLoader(temp_dataset, batch_size=len(temp_dataset))
@@ -49,14 +33,9 @@ def get_test_loader(batch_size=1000):
     mean = torch.mean(data).item()
     std = torch.std(data).item()
     
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((mean,), (std,))
-    ])
+    transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((mean,), (std,))])
     
-    test_dataset = datasets.MNIST(
-        root='./data',
-        train=False,
+    test_dataset = datasets.MNIST(root='./data',train=False,
         download=True,
         transform=transform
     )
@@ -72,13 +51,6 @@ def get_test_loader(batch_size=1000):
 
 
 def evaluate_model(model, test_loader):
-    """
-    Evaluate the model on the full test dataset and print metrics.
-    
-    Args:
-        model: The trained CNN model
-        test_loader: DataLoader for test data
-    """
     print("\n" + "=" * 60)
     print("Evaluating Model on Full Test Set...")
     print("=" * 60)
@@ -89,10 +61,14 @@ def evaluate_model(model, test_loader):
     # Disable gradient computation for efficiency
     with torch.no_grad():
         for images, labels in test_loader:
-            # Forward pass
             outputs = model(images)
             
-            # Get predictions
+    all_predictions = []
+    all_labels = []
+    
+    with torch.no_grad():
+        for images, labels in test_loader:
+            outputs = model(images)
             _, predicted = torch.max(outputs, 1)
             
             all_predictions.extend(predicted.numpy())
