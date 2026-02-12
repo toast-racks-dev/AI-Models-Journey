@@ -35,7 +35,7 @@ class MNISTConvNet(nn.Module):
         x = self.pool(F.relu(self.conv3(x)))       
        
         # Flatten: (batch, 128, 3, 3) → (batch, 1152)
-        x = x.view(x.size(0), -1) #0 means the batch size         
+        x = x.view(x.size(0), -1)         
        
         # Fully connected with dropout
         x = F.relu(self.fc1(x))
