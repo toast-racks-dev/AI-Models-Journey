@@ -66,6 +66,7 @@ class FastSelfAttention(nn.Module):
         self.query_att = nn.Linear(self.all_head_size, self.num_attention_heads)
         self.key       = nn.Linear(config.hidden_size, self.all_head_size)
         self.key_att   = nn.Linear(self.all_head_size, self.num_attention_heads)
+        self.value     = nn.Linear(config.hidden_size, self.all_head_size)
         self.transform = nn.Linear(self.all_head_size, self.all_head_size)
         self.softmax   = nn.Softmax(dim=-1)
 
@@ -77,6 +78,7 @@ class FastSelfAttention(nn.Module):
         batch_size, seq_len, _ = hidden_states.shape
         mixed_query = self.query(hidden_states)
         mixed_key   = self.key(hidden_states)
+        mixed_value = self.value(hidden_states)
 
         q_score = self.query_att(mixed_query).transpose(1, 2) / self.attention_head_size ** 0.5
         q_score += attention_mask
@@ -92,7 +94,9 @@ class FastSelfAttention(nn.Module):
         k_layer   = self.transpose_for_scores(mixed_qk)
         pooled_k  = torch.matmul(qk_weight, k_layer)
 
-        weighted_value = (pooled_k * q_layer).transpose(1, 2)
+        v_layer   = self.transpose_for_scores(mixed_value)
+
+        weighted_value = (pooled_k * v_layer).transpose(1, 2)
         weighted_value = weighted_value.reshape(weighted_value.size()[:-2] + (self.all_head_size,))
         return self.transform(weighted_value) + mixed_query
 
